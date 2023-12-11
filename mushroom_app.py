@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
@@ -8,6 +9,7 @@ from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 import joblib
+from sklearn.preprocessing import LabelEncoder
 
 # Assuming you have already trained and saved your models
 # Replace these with the actual paths to your saved models
@@ -26,9 +28,42 @@ rf_model = joblib.load(rf_model_path)
 df = pd.read_csv('mushrooms.csv')  # Replace with the path to your dataset
 
 # Assuming X is your feature matrix and y is your target variable
-X = df.drop('target_column', axis=1)
-y = df['target_column']
+def prepare_data(noise=0):
+    data = pd.read_csv('mushrooms.csv')
 
+    # encode dataframe
+    mappings = list()
+    encoder = LabelEncoder()
+
+    for column in range(len(data.columns)):
+        data[data.columns[column]] = encoder.fit_transform(data[data.columns[column]]) #transform every column to numerical values
+        mappings_dict = {index: label for index, label in enumerate(encoder.classes_)} #create dictionary for encoded and original values
+        mappings.append(mappings_dict) #append dictionary to mappings list
+
+
+    # Split data into features and target
+    y = data['class']
+    X = data.drop(['class'], axis=1)
+
+
+
+    # set noise percentage
+    noise_percentage = noise
+
+    # Calculate the number of noisy data points
+    num_noise_points = int(len(X) * (noise_percentage / 100))
+
+    # Choose random indices to add noise
+    noise_indices = np.random.choice(len(X), num_noise_points, replace=False)
+
+    # Add noise to selected indices
+    for column in X.columns:
+        # Assuming your data is categorical with numerical values
+        unique_values = X[column].unique()
+        X.loc[noise_indices, column] = np.random.choice(unique_values, size=num_noise_points)
+
+    return X, y
+X, y = prepare_data(noise=10)
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
