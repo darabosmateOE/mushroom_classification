@@ -10,6 +10,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 import joblib
 from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_selection import SelectKBest, f_classif
+
 
 # Assuming you have already trained and saved your models
 # Replace these with the actual paths to your saved models
@@ -65,6 +67,12 @@ def prepare_data(noise=0):
     return X, y
 X, y = prepare_data(noise=10)
 # Split the data into training and testing sets
+
+X_new = SelectKBest(f_classif, k=8)
+X_new.set_output(transform='pandas')
+X = X_new.fit_transform(X, y)
+X_new.get_feature_names_out()
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Train your models (you might not need this part if your models are pre-trained)
