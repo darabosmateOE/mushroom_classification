@@ -1,3 +1,4 @@
+from sklearn.discriminant_analysis import StandardScaler
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,8 +14,6 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import SelectKBest, f_classif
 
 
-# Assuming you have already trained and saved your models
-# Replace these with the actual paths to your saved models
 log_reg_model_path = 'logistic_regression_model.pkl'
 svm_model_path = 'svm_model.pkl'
 nn_model_path = 'neural_network_model.pkl'
@@ -26,28 +25,33 @@ svm_model = joblib.load(svm_model_path)
 nn_model = joblib.load(nn_model_path)
 rf_model = joblib.load(rf_model_path)
 
-# Load your dataset
-df = pd.read_csv('mushrooms.csv')  # Replace with the path to your dataset
 
 # Assuming X is your feature matrix and y is your target variable
 def prepare_data(noise=0):
     data = pd.read_csv('mushrooms.csv')
+    # select features
+    selected_columns = ['class', 'bruises', 'gill-spacing', 'gill-size', 'gill-color', 'stalk-root',
+                    'stalk-surface-above-ring', 'stalk-surface-below-ring', 'ring-type']
 
+    # Select the desired columns from the DataFrame
+    data = data.loc[:, selected_columns]
     # encode dataframe
     mappings = list()
     encoder = LabelEncoder()
-
     for column in range(len(data.columns)):
         data[data.columns[column]] = encoder.fit_transform(data[data.columns[column]]) #transform every column to numerical values
         mappings_dict = {index: label for index, label in enumerate(encoder.classes_)} #create dictionary for encoded and original values
         mappings.append(mappings_dict) #append dictionary to mappings list
 
+    # scaler = StandardScaler()
+    # data = pd.DataFrame(scaler.fit_transform(data)) #scale data))
+
 
     # Split data into features and target
-    y = data['class']
-    X = data.drop(['class'], axis=1)
+    y = data.iloc[:, 0]
+    X = data.iloc[:, 1:]
 
-
+    
 
     # set noise percentage
     noise_percentage = noise
@@ -65,13 +69,10 @@ def prepare_data(noise=0):
         X.loc[noise_indices, column] = np.random.choice(unique_values, size=num_noise_points)
 
     return X, y
+
+
 X, y = prepare_data(noise=10)
 # Split the data into training and testing sets
-
-X_new = SelectKBest(f_classif, k=8)
-X_new.set_output(transform='pandas')
-X = X_new.fit_transform(X, y)
-X_new.get_feature_names_out()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
