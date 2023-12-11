@@ -11,10 +11,10 @@ import joblib
 
 # Assuming you have already trained and saved your models
 # Replace these with the actual paths to your saved models
-log_reg_model_path = 'path_to_log_reg_model.pkl'
-svm_model_path = 'path_to_svm_model.pkl'
-nn_model_path = 'path_to_nn_model.pkl'
-rf_model_path = 'path_to_rf_model.pkl'
+log_reg_model_path = 'logistic_regression_model.pkl'
+svm_model_path = 'svm_model.pkl'
+nn_model_path = 'neural_network_model.pkl'
+rf_model_path = 'random_forest_model.pkl'
 
 # Load the models
 log_reg_model = joblib.load(log_reg_model_path)
@@ -23,7 +23,7 @@ nn_model = joblib.load(nn_model_path)
 rf_model = joblib.load(rf_model_path)
 
 # Load your dataset
-df = pd.read_csv('your_dataset.csv')  # Replace with the path to your dataset
+df = pd.read_csv('mushrooms.csv')  # Replace with the path to your dataset
 
 # Assuming X is your feature matrix and y is your target variable
 X = df.drop('target_column', axis=1)
@@ -35,7 +35,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Train your models (you might not need this part if your models are pre-trained)
 
 # Streamlit App
-st.title("Model Comparison App")
+st.title("Mushroom prediction app")
 
 # Sidebar for User Inputs
 model_selector = st.sidebar.selectbox("Select Model", ("Logistic Regression", "SVM", "Neural Network", "Random Forest"))
