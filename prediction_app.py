@@ -12,7 +12,12 @@ import numpy as np
 import joblib
 from time import sleep
 
+
+feature_names = ['bruises', 'gill-spacing', 'gill-size', 'gill-color', 'stalk-root', 'stalk-surface-above-ring', 'stalk-surface-below-ring', 'ring-type']
 df = pd.read_csv('mushrooms.csv')
+
+df = df[feature_names]
+print(df.head())
 
 # Assuming you have already trained and saved your models
 # Replace these with the actual paths to your saved models
@@ -47,26 +52,34 @@ st.sidebar.header("Input Mushroom Parameters")
 
 # Allow the user to input values for each feature
 for feature, default_value in input_features.items():
-    input_features[feature] = st.sidebar.selectbox(f"{feature.capitalize()}: ", df[feature].unique(), index=df[feature].unique().tolist().index(default_value))
+    input_features[feature] = st.sidebar.selectbox(f"{feature.capitalize()}: ", df[feature].unique()) #index=df[feature].unique().tolist().index(default_value)
 
 # Display a button to trigger predictions
 if st.sidebar.button("Get Predictions"):
+
     # Create a DataFrame with user-input values
     user_input = pd.DataFrame([input_features])
+    
 
     # Display user-input values
     st.subheader("User Input:")
     st.table(user_input)
 
+    #add user input to dataset for encoding
+    df.iloc[-1] = user_input.iloc[0]
+
     # encode dataframe
     mappings = list()
     encoder = LabelEncoder()
-    for column in range(len(user_input.columns)):
-        user_input[user_input.columns[column]] = encoder.fit_transform(user_input[user_input.columns[column]]) #transform every column to numerical values
+    for column in range(len(df.columns)):
+        df[df.columns[column]] = encoder.fit_transform(df[df.columns[column]]) #transform every column to numerical values
         mappings_dict = {index: label for index, label in enumerate(encoder.classes_)} #create dictionary for encoded and original values
         mappings.append(mappings_dict) #append dictionary to mappings list
 
+    user_input = df.iloc[[-1]]
+    #st.table(user_input)
 
+    
     # Make predictions with each model
     log_reg_prediction = log_reg_model.predict(user_input)[0]
     svm_prediction = svm_model.predict(user_input)[0]
@@ -80,5 +93,3 @@ if st.sidebar.button("Get Predictions"):
     st.write(f"SVM Prediction: {svm_prediction}")
     st.write(f"Neural Network Prediction: {nn_prediction}")
     st.write(f"Random Forest Prediction: {rf_prediction}")
-
-
