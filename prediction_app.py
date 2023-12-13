@@ -2,10 +2,6 @@ import streamlit as st
 import pandas as pd
 from sklearn.metrics import confusion_matrix, accuracy_score, roc_curve, auc
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
@@ -43,6 +39,8 @@ input_features = {
     'stalk-surface-below-ring': 's',
     'ring-type': 'p'
 }
+
+st.set_page_config(page_title="Ne egyél bolond gombát!", page_icon="🍄", layout="wide")
 
 # Streamlit App
 st.title("Mushroom Prediction App")
@@ -93,3 +91,11 @@ if st.sidebar.button("Get Predictions"):
     st.write(f"SVM Prediction: {svm_prediction}")
     st.write(f"Neural Network Prediction: {nn_prediction}")
     st.write(f"Random Forest Prediction: {rf_prediction}")
+
+
+    
+    if rf_prediction == 0:
+        st.write(f"<span style='color:green;font-weight:bold'>nem halsz meg!</span>", unsafe_allow_html=True)
+
+    elif rf_prediction == 1:
+        st.write(f"<span style='color:red;font-weight:bold'>meghalsz!</span>", unsafe_allow_html=True)
